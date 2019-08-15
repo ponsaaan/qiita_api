@@ -10,6 +10,19 @@ updated_at_criteria = datetime.date.today() + datetime.timedelta(days=-30)
 BASE_URI = 'https://qiita.com/api/v2/items'
 
 
+def lambda_handler(event, context):
+    try:
+        for i in range(1, MAX_PAGINATE):
+            set_articles(i)
+    except urllib.error.HTTPError as err:
+        print(err.code)
+    except urllib.error.URLError as err:
+        print(err.reason)
+
+    print(obtained_articles)
+    return obtained_articles
+
+
 def convert_str_to_dt(str_datetime):
     dt = datetime.datetime.strptime(str_datetime[:10], '%Y-%m-%d')
     date = datetime.date(dt.year, dt.month, dt.day)
@@ -34,16 +47,3 @@ def set_articles(paginate_number):
     get_items_uri = BASE_URI + f'?page={paginate_number}&per_page={PER_PAGE}'
     req = urllib.request.Request(get_items_uri)
     issue_request(req)
-
-
-try:
-    for i in range(1, MAX_PAGINATE):
-        set_articles(i)
-except urllib.error.HTTPError as err:
-    print(err.code)
-except urllib.error.URLError as err:
-    print(err.reason)
-
-print(obtained_articles)
-
-
